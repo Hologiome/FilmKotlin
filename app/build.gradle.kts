@@ -70,4 +70,11 @@ dependencies {
     implementation ("androidx.compose.material3:material3-window-size-class:1.1.2")
     implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation ("androidx.compose.material:material:1.5.4")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
+    implementation("io.coil-kt:coil-compose:1.4.0")
+    implementation ("androidx.compose.material:material-icons-core:x.y.z")
+    implementation ("androidx.compose.material:material-icons-extended:x.y.z")
+
 }
