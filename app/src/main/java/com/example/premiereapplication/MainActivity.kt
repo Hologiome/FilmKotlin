@@ -120,12 +120,26 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("filmdetail/$movieId")
                             }}
 
-                            composable(Destination.Acteurs.destination) { Acteurs(viewmodel)}
-                            composable(Destination.Series.destination) { Series(viewmodel)}
+                            composable(Destination.Acteurs.destination) { Actors(navController = navController, viewmodel = viewmodel) { actorId ->
+                                Log.d("uuu", actorId )
+                                navController.navigate("actordetail/$actorId")
+                            }}
+                            composable(Destination.Series.destination) { Series(navController = navController, viewmodel = viewmodel) { serieId ->
+                                Log.d("uuu", serieId )
+                                navController.navigate("seriedetail/$serieId")
+                            }}
                             composable("filmdetail/{movieId}") { backStackEntry ->
                                 val id = backStackEntry.arguments?.getString("movieId")?:""
                                 Log.d("uuuuuuuuuuu", id )
                                 FilmDetail(movieId = id , viewModel = viewmodel) }
+                            composable("seriedetail/{serieId}") { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("serieId")?:""
+                                Log.d("uuuuuuuuuuu", id )
+                                SerieDetail(serieId = id , viewModel = viewmodel) }
+                            composable("actordetail/{actorId}") { backStackEntry ->
+                                val id = backStackEntry.arguments?.getString("actorId")?:""
+                                Log.d("uuuuuuuuuuu", id )
+                                ActorDetail(actorId = id , viewModel = viewmodel) }
 
                         }
                     }
@@ -146,6 +160,8 @@ sealed class Destination(val destination: String, val label: String, val icon: I
     object Series : Destination("series", "Séries", Icons.Filled.Tv)
     object Acteurs : Destination("acteurs", "Acteurs", Icons.Filled.Group)
     object FilmDetail : Destination("filmdetail/{movieId}","Detail", Icons.Filled.Group)
+    object SerieDetail : Destination("seriedetail/{serieId}","DetailSerie", Icons.Filled.Group)
+    object ActorDetail : Destination("actordetail/{actorId}","DetailActor", Icons.Filled.Group)
 }
 @Composable
 fun Profil(windowClass: WindowSizeClass, onClick: () -> Unit) {
@@ -445,13 +461,337 @@ fun FilmDetail(movieId : String, viewModel: MainViewModel) {
 
 
 @Composable
-fun Acteurs(viewmodel: MainViewModel){
+fun Actors(navController: NavHostController, viewmodel: MainViewModel, onCardClick: (String) -> Unit) {
+    LaunchedEffect(key1 = true) {
+        viewmodel.getActors()
+    }
 
+    val actors by viewmodel.actors.collectAsStateWithLifecycle()
+
+    Surface(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            items(actors) { actor ->
+                ActorItem(actor = actor, navController = navController) {
+                    onCardClick(actor.id)
+                }
+            }
+        }
+    }
 }
 
 @Composable
-fun Series(viewmodel: MainViewModel){
+fun ActorItem(actor: TmdbActor, navController: NavHostController, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate("actordetail/${actor.id}")
+                Log.d("uu", actor.id)
+                onClick()
+            } // Handle click events
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight() // Adjusted to wrap content in height
+                .padding(16.dp) // Added padding for better spacing
+        ) {
+            // Use Coil to load and display the movie poster
+            val painter = rememberImagePainter(
+                data = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/${actor.profile_path}",
+                builder = {
+                    crossfade(true)
+                }
+            )
 
+            Image(
+                painter = painter,
+                contentDescription = actor.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp) // Adjust the height as needed
+                    .clip(shape = MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+
+            // Display movie title in bold
+            Text(
+                text = actor.name,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold, // Set the text to bold
+                    color = Color.Black
+                ),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun ActorDetail(actorId : String, viewModel: MainViewModel) {
+//    val movieId = navController.previousBackStackEntry?.arguments?.getInt("movieId")?:0
+//    val movie = viewModel.getMovieById(movieId)
+    Log.d("xxx", "on actor detail:" + actorId)
+
+    LaunchedEffect(key1 = true) {
+        viewModel.getActorById(actorId)
+    }
+
+    val actor by viewModel.detailsActor.collectAsStateWithLifecycle()
+
+
+    // Use a Column to arrange details vertically
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        val painter = rememberImagePainter(
+            data = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/${actor.profile_path}",
+            builder = {
+                crossfade(true)
+            }
+        )
+
+        Image(
+            painter = painter,
+            contentDescription = actor.name,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(400.dp) // Adjust the height as needed
+                .clip(shape = MaterialTheme.shapes.medium),
+            contentScale = ContentScale.Crop
+        )
+        // Display movie title
+        Text(
+            text = actor.name,
+            style = TextStyle(
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            ),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        // Display release date
+        actor.birthday?.let {
+            Text(
+                text = it,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                ),
+                modifier = Modifier
+                    .padding(top = 4.dp)
+            )
+        }
+
+        actor.deathday?.let {
+            Text(
+                text = it,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                ),
+                modifier = Modifier
+                    .padding(top = 4.dp)
+            )
+        }
+
+        Text(
+            text = "Biography :",
+            style = TextStyle(
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            ),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        // Display movie overview
+        Text(
+            text = actor.biography,
+            style = TextStyle(
+                fontSize = 16.sp,
+                color = Color.Black
+            ),
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+    }
+}
+@Composable
+fun Series(navController: NavHostController, viewmodel: MainViewModel, onCardClick: (String) -> Unit) {
+    LaunchedEffect(key1 = true) {
+        viewmodel.getSerie()
+    }
+
+    val series by viewmodel.series.collectAsStateWithLifecycle()
+
+    Surface(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            items(series) { serie ->
+                SerieItem(serie = serie, navController = navController) {
+                    onCardClick(serie.id)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SerieItem(serie: TmdbSeries, navController: NavHostController, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate("seriedetail/${serie.id}")
+                Log.d("uu", serie.id)
+                onClick()
+            } // Handle click events
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight() // Adjusted to wrap content in height
+                .padding(16.dp) // Added padding for better spacing
+        ) {
+            // Use Coil to load and display the movie poster
+            val painter = rememberImagePainter(
+                data = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/${serie.poster_path}",
+                builder = {
+                    crossfade(true)
+                }
+            )
+
+            Image(
+                painter = painter,
+                contentDescription = serie.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp) // Adjust the height as needed
+                    .clip(shape = MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+
+            // Display movie title in bold
+            Text(
+                text = serie.name,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold, // Set the text to bold
+                    color = Color.Black
+                ),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+            )
+
+            // Display release date
+            Text(
+                text = serie.first_air_date,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                ),
+                modifier = Modifier
+                    .padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun SerieDetail(serieId : String, viewModel: MainViewModel) {
+//    val movieId = navController.previousBackStackEntry?.arguments?.getInt("movieId")?:0
+//    val movie = viewModel.getMovieById(movieId)
+    Log.d("xxx", "on serie detail:" + serieId )
+
+    LaunchedEffect(key1 = true) {
+        viewModel.getSerieById(serieId)
+    }
+
+    val serie by viewModel.detailsSerie.collectAsStateWithLifecycle()
+
+
+    // Use a Column to arrange details vertically
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        val painter = rememberImagePainter(
+            data = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/${serie.poster_path}",
+            builder = {
+                crossfade(true)
+            }
+        )
+
+        Image(
+            painter = painter,
+            contentDescription = serie.name,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(400.dp) // Adjust the height as needed
+                .clip(shape = MaterialTheme.shapes.medium),
+            contentScale = ContentScale.Crop
+        )
+        // Display movie title
+        Text(
+            text = serie.name,
+            style = TextStyle(
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            ),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        // Display release date
+        Text(
+            text = serie.first_air_date,
+            style = TextStyle(
+                fontSize = 14.sp,
+                color = Color.Gray
+            ),
+            modifier = Modifier
+                .padding(top = 4.dp)
+        )
+
+        Text(
+            text = "Synopsis :",
+            style = TextStyle(
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            ),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        // Display movie overview
+        Text(
+            text = serie.overview,
+            style = TextStyle(
+                fontSize = 16.sp,
+                color = Color.Black
+            ),
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+    }
 }
 
 

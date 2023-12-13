@@ -10,4 +10,17 @@ interface Api {
 
     @GET("movie/{movie_id}")
     suspend fun detailmovie( @Path("movie_id") movie_id: String, @Query("api_key") api_key: String): TmdbMovieDetail
+
+    @GET("trending/tv/week")
+    suspend fun lastseries(@Query("api_key") api_key: String): TmdbSerieResult
+
+    @GET("tv/{serie_id}")
+    suspend fun detailserie( @Path("serie_id") serie_id: String, @Query("api_key") api_key: String): TMDBSerieDetails
+
+    @GET("trending/person/week")
+    suspend fun lastactors(@Query("api_key") api_key: String): TmdbActorResult
+
+    @GET("person/{actor_id}")
+    suspend fun detailactor( @Path("actor_id") actor_id: String, @Query("api_key") api_key: String): TMDBActorDetails
+
 }
