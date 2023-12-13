@@ -74,6 +74,7 @@ import androidx.compose.material.icons.filled.Movie
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 
 
@@ -370,10 +371,11 @@ fun FilmDetail(movieId : String, viewModel: MainViewModel) {
 
     LaunchedEffect(key1 = true) {
         viewModel.getMovieById(movieId)
+//        viewModel.getCastMembers(movieId)
     }
 
     val movie by viewModel.details.collectAsStateWithLifecycle()
-
+//    val castmembers by viewModel.CastMembers.collectAsStateWithLifecycle()
 
     // Use a Column to arrange details vertically
     Column(
@@ -438,6 +440,28 @@ fun FilmDetail(movieId : String, viewModel: MainViewModel) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        Text(
+            text = "Têtes d'affiche :",
+            style = TextStyle(
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            ),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+//        LazyVerticalGrid(
+//            columns = GridCells.Fixed(2),
+//            contentPadding = PaddingValues(16.dp),
+//            horizontalArrangement = Arrangement.spacedBy(16.dp),
+//            verticalArrangement = Arrangement.spacedBy(20.dp)
+//        ) {
+//            items(castmembers) { castmember ->
+//                CastmemberItem(castmember = castmember, navController = navController) {
+//                    onCardClick(castmember.id)
+//                }
+//            }
+//        }
 //         You can add more details as needed
 //
 //         Add a back button to navigate back
@@ -451,6 +475,57 @@ fun FilmDetail(movieId : String, viewModel: MainViewModel) {
 //        ) {
 //            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
 //        }
+    }
+}
+
+@Composable
+fun CastmemberItem(castmember: TMDBCastMember, navController: NavHostController, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate("actordetail/${castmember.id}")
+                onClick()
+            } // Handle click events
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight() // Adjusted to wrap content in height
+                .padding(16.dp) // Added padding for better spacing
+        ) {
+            // Use Coil to load and display the movie poster
+            val painter = rememberImagePainter(
+                data = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/${castmember.profile_path}",
+                builder = {
+                    crossfade(true)
+                }
+            )
+
+            Image(
+                painter = painter,
+                contentDescription = castmember.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp) // Adjust the height as needed
+                    .clip(shape = MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+
+            // Display movie title in bold
+            Text(
+                text = castmember.name,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
+        }
     }
 }
 
@@ -526,10 +601,12 @@ fun ActorItem(actor: TmdbActor, navController: NavHostController, onClick: () ->
                 text = actor.name,
                 style = TextStyle(
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold, // Set the text to bold
-                    color = Color.Black
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
                 ),
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(top = 8.dp)
             )
         }

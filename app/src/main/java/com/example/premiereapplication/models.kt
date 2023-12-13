@@ -222,6 +222,24 @@ data class TMDBActorDetails(
     val profile_path: String = ""
 )
 
+data class TMDBCreditsResult(
+    val cast: List<TMDBCastMember> = listOf()
+)
+
+data class TMDBCastMember(
+    val adult: Boolean = false,
+    val gender: Int = 0,
+    val id: String = "",
+    val knownForDepartment: String = "",
+    val name: String = "",
+    val originalName: String = "",
+    val popularity: Double = 0.0,
+    val profile_path: String = "",
+    val castId: Int = 0,
+    val character: String = "",
+    val creditId: String = "",
+    val order: Int = 0
+)
 
 
 
