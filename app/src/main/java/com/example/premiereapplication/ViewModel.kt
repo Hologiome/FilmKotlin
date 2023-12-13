@@ -65,11 +65,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    val CastMembers = MutableStateFlow<List<TMDBCastMember>>(listOf())
+    val CastMembers = MutableStateFlow<List<Cast>>(listOf())
 
     fun getCastMembers(movieId: String) {
         viewModelScope.launch {
-            CastMembers.value = api.lastcastmembers(api_key = "c36d23110d3cb6185a16058a84974221", movie_id = movieId).cast
+            CastMembers.value = api.lastcastmembers(api_key = "c36d23110d3cb6185a16058a84974221", movie_id = movieId).credits.cast
+            Log.d("YYYYYY", CastMembers.value.size.toString())
         }
     }
 

@@ -24,5 +24,5 @@ interface Api {
     suspend fun detailactor( @Path("actor_id") actor_id: String, @Query("api_key") api_key: String): TMDBActorDetails
 
     @GET("movie/{movie_id}?append_to_response=credits")
-    suspend fun lastcastmembers( @Path("movie_id") movie_id: String, @Query("api_key") api_key: String): TMDBCreditsResult
+    suspend fun lastcastmembers( @Path("movie_id") movie_id: String, @Query("api_key") api_key: String): TMDBDetailfull
 }

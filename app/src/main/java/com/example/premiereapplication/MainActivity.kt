@@ -460,7 +460,7 @@ fun FilmDetail(movieId : String, viewModel: MainViewModel,navController: NavHost
         ) {
             items(castmembers) { castmember ->
                 CastmemberItem(castmember = castmember, navController = navController) {
-                    onCardClick(castmember.id)
+                    onCardClick(castmember.cast_id)
                 }
             }
         }
@@ -481,7 +481,7 @@ fun FilmDetail(movieId : String, viewModel: MainViewModel,navController: NavHost
 }
 
 @Composable
-fun CastmemberItem(castmember: TMDBCastMember, navController: NavHostController, onClick: () -> Unit) {
+fun CastmemberItem(castmember: Cast, navController: NavHostController, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -514,7 +514,7 @@ fun CastmemberItem(castmember: TMDBCastMember, navController: NavHostController,
                 contentScale = ContentScale.Crop
             )
 
-            // Display movie title in bold
+
             Text(
                 text = castmember.name,
                 style = TextStyle(
