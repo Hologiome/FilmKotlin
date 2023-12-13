@@ -132,7 +132,9 @@ class MainActivity : ComponentActivity() {
                             composable("filmdetail/{movieId}") { backStackEntry ->
                                 val id = backStackEntry.arguments?.getString("movieId")?:""
                                 Log.d("uuuuuuuuuuu", id )
-                                FilmDetail(movieId = id , viewModel = viewmodel) }
+                                FilmDetail(movieId = id , viewModel = viewmodel, navController = navController) { actorId ->
+                                navController.navigate("actordetail/$actorId")
+                                }}
                             composable("seriedetail/{serieId}") { backStackEntry ->
                                 val id = backStackEntry.arguments?.getString("serieId")?:""
                                 Log.d("uuuuuuuuuuu", id )
@@ -364,18 +366,18 @@ fun FilmItem(movie: TmdbMovie, navController: NavHostController, onClick: () -> 
 }
 
 @Composable
-fun FilmDetail(movieId : String, viewModel: MainViewModel) {
+fun FilmDetail(movieId : String, viewModel: MainViewModel,navController: NavHostController, onCardClick: (String) -> Unit) {
 //    val movieId = navController.previousBackStackEntry?.arguments?.getInt("movieId")?:0
 //    val movie = viewModel.getMovieById(movieId)
     Log.d("xxx", "on film detail:" + movieId )
 
     LaunchedEffect(key1 = true) {
         viewModel.getMovieById(movieId)
-//        viewModel.getCastMembers(movieId)
+        viewModel.getCastMembers(movieId)
     }
 
     val movie by viewModel.details.collectAsStateWithLifecycle()
-//    val castmembers by viewModel.CastMembers.collectAsStateWithLifecycle()
+    val castmembers by viewModel.CastMembers.collectAsStateWithLifecycle()
 
     // Use a Column to arrange details vertically
     Column(
@@ -450,18 +452,18 @@ fun FilmDetail(movieId : String, viewModel: MainViewModel) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-//        LazyVerticalGrid(
-//            columns = GridCells.Fixed(2),
-//            contentPadding = PaddingValues(16.dp),
-//            horizontalArrangement = Arrangement.spacedBy(16.dp),
-//            verticalArrangement = Arrangement.spacedBy(20.dp)
-//        ) {
-//            items(castmembers) { castmember ->
-//                CastmemberItem(castmember = castmember, navController = navController) {
-//                    onCardClick(castmember.id)
-//                }
-//            }
-//        }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            items(castmembers) { castmember ->
+                CastmemberItem(castmember = castmember, navController = navController) {
+                    onCardClick(castmember.id)
+                }
+            }
+        }
 //         You can add more details as needed
 //
 //         Add a back button to navigate back
