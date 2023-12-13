@@ -380,104 +380,70 @@ fun FilmDetail(movieId : String, viewModel: MainViewModel,navController: NavHost
     val castmembers by viewModel.CastMembers.collectAsStateWithLifecycle()
 
     // Use a Column to arrange details vertically
-    Column(
+    LazyColumn( // Utilisez LazyColumn pour rendre le contenu défilable
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val painter = rememberImagePainter(
-            data = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/${movie.poster_path}",
-            builder = {
-                crossfade(true)
-            }
-        )
+        item { // Image et titre du film
+            val painter = rememberImagePainter(
+                data = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/${movie.poster_path}",
+                builder = { crossfade(true) }
+            )
 
-        Image(
-            painter = painter,
-            contentDescription = movie.title,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp) // Adjust the height as needed
-                .clip(shape = MaterialTheme.shapes.medium),
-            contentScale = ContentScale.Crop
-        )
-        // Display movie title
-        Text(
-            text = movie.title,
-            style = TextStyle(
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        // Display release date
-        Text(
-            text = movie.release_date,
-            style = TextStyle(
-                fontSize = 14.sp,
-                color = Color.Gray
-            ),
-            modifier = Modifier
-                .padding(top = 4.dp)
-        )
+            Image(
+                painter = painter,
+                contentDescription = movie.title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .clip(shape = MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
 
-        Text(
-            text = "Synopsis :",
-            style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+            Text(
+                text = movie.title,
+                style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Black),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
 
-        // Display movie overview
-        Text(
-            text = movie.overview,
-            style = TextStyle(
-                fontSize = 16.sp,
-                color = Color.Black
-            ),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        item { // Date de sortie et synopsis
+            Text(
+                text = movie.release_date,
+                style = TextStyle(fontSize = 14.sp, color = Color.Gray),
+                modifier = Modifier.padding(top = 4.dp)
+            )
 
-        Text(
-            text = "Têtes d'affiche :",
-            style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+            Text(
+                text = "Synopsis :",
+                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            items(castmembers) { castmember ->
-                CastmemberItem(castmember = castmember, navController = navController) {
-                    onCardClick(castmember.cast_id)
-                }
+            Text(
+                text = movie.overview,
+                style = TextStyle(fontSize = 16.sp, color = Color.Black),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Text(
+                text = "Têtes d'affiche :",
+                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
+        items(castmembers) { castmember ->
+            CastmemberItem(castmember = castmember, navController = navController) {
+                onCardClick(castmember.cast_id)
             }
         }
-//         You can add more details as needed
-//
-//         Add a back button to navigate back
-//        IconButton(
-//            onClick = {
-//                navController.Films
-//            },
-//            modifier = Modifier
-//                .align(Alignment.End)
-//                .padding(8.dp)
-//        ) {
-//            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-//        }
+
+
     }
+
+
 }
 
 @Composable
